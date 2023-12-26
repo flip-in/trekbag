@@ -1,7 +1,7 @@
 import EmptyView from './EmptyView';
 import Select from 'react-select';
-import { useItemsContext } from '../lib/hooks';
 import { useMemo, useState } from 'react';
+import { useItemsStore } from '../stores/itemsStore';
 
 const sortingOptions = [
   {
@@ -20,7 +20,9 @@ const sortingOptions = [
 
 export default function ItemList() {
   const [sortBy, setSortBy] = useState('default');
-  const { items, handleDeleteItem, handleToggleItem } = useItemsContext();
+  const items = useItemsStore((state) => state.items);
+  const deleteItem = useItemsStore((state) => state.deleteItem);
+  const toggleItem = useItemsStore((state) => state.toggleItem);
 
   //spread the items into a new array in order to avoid mutating the original array
   const sortedItems = useMemo(
@@ -55,21 +57,21 @@ export default function ItemList() {
         <Item
           item={item}
           key={item.id}
-          onDeleteItem={handleDeleteItem}
-          onToggleItem={handleToggleItem}
+          deleteItem={deleteItem}
+          toggleItem={toggleItem}
         />
       ))}
     </ul>
   );
 }
 
-function Item({ item, onDeleteItem, onToggleItem }) {
+function Item({ item, deleteItem, toggleItem }) {
   return (
     <li className='item'>
       <label>
         <input
           onChange={() => {
-            onToggleItem(item.id);
+            toggleItem(item.id);
           }}
           type='checkbox'
           checked={item.packed}
@@ -78,7 +80,7 @@ function Item({ item, onDeleteItem, onToggleItem }) {
       </label>
       <button
         onClick={() => {
-          onDeleteItem(item.id);
+          deleteItem(item.id);
         }}
       >
         ❌
